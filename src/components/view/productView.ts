@@ -4,10 +4,13 @@ import { cloneTemplate, formatSynapseWord } from '../../utils/utils';
 import { EventEmitter } from '../base/events';
 import { IView } from './view';
 
+
+// отображение продукта
 export class ProductView implements IView {
-	constructor(protected _events: EventEmitter) {}
+	constructor(protected _events: EventEmitter) {} //принимаем EventEmitator чтобы потом отправлять форму
+	// рендерим продукт
 	render(product: IProduct) {
-		const container = cloneTemplate('#card-catalog') as HTMLButtonElement;
+		const container = cloneTemplate('#card-catalog') as HTMLButtonElement; // создаем карточку продукта (основной контейнер)
 		container.onclick = () => this._events.emit('product-view: click', product);
 
 		container.querySelector('.card__category').textContent = product.category;

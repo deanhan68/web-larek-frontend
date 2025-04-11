@@ -1,16 +1,17 @@
-// Хорошая практика даже простые типы выносить в алиасы
-// Зато когда захотите поменять это достаточно сделать в одном месте
-type EventName = string | RegExp;
-type Subscriber = Function;
-type EmitterEvent = {
+//типы 
+type EventName = string | RegExp; // имя события
+type Subscriber = Function; // функция которая вызывается
+type EmitterEvent = { 
     eventName: string,
     data: unknown
-};
+}; //структура события
 
+
+//интерфейс событий 
 export interface IEvents {
-    on<T extends object>(event: EventName, callback: (data: T) => void): void;
-    emit<T extends object>(event: string, data?: T): void;
-    trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void;
+    on<T extends object>(event: EventName, callback: (data: T) => void): void; //подписаться на событие
+    emit<T extends object>(event: string, data?: T): void; // запуск события
+    trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void; // возврат функции, которая при вызове сосздает событие
 }
 
 /**
@@ -18,6 +19,8 @@ export interface IEvents {
  * В расширенных вариантах есть возможность подписаться на все события
  * или слушать события по шаблону например
  */
+
+// событийный посредник
 export class EventEmitter implements IEvents {
     _events: Map<EventName, Set<Subscriber>>;
 
@@ -28,6 +31,8 @@ export class EventEmitter implements IEvents {
     /**
      * Установить обработчик на событие
      */
+
+    // подписка на событие
     on<T extends object>(eventName: EventName, callback: (event: T) => void) {
         if (!this._events.has(eventName)) {
             this._events.set(eventName, new Set<Subscriber>());
@@ -38,6 +43,8 @@ export class EventEmitter implements IEvents {
     /**
      * Снять обработчик с события
      */
+
+    // отписка от события
     off(eventName: EventName, callback: Subscriber) {
         if (this._events.has(eventName)) {
             this._events.get(eventName)!.delete(callback);
@@ -50,6 +57,8 @@ export class EventEmitter implements IEvents {
     /**
      * Инициировать событие с данными
      */
+
+    // вызов события
     emit<T extends object>(eventName: string, data?: T) {
         this._events.forEach((subscribers, name) => {
             if (name === '*') subscribers.forEach(callback => callback({
@@ -62,9 +71,8 @@ export class EventEmitter implements IEvents {
         });
     }
 
-    /**
-     * Слушать все события
-     */
+    
+    // слушать все события
     onAll(callback: (event: EmitterEvent) => void) {
         this.on("*", callback);
     }
@@ -72,6 +80,8 @@ export class EventEmitter implements IEvents {
     /**
      * Сбросить все обработчики
      */
+
+    // никто больше не подписан
     offAll() {
         this._events = new Map<string, Set<Subscriber>>();
     }
@@ -79,6 +89,8 @@ export class EventEmitter implements IEvents {
     /**
      * Сделать коллбек триггер, генерирующий событие при вызове
      */
+
+    // создаёт функцию для генерации события с данными и контекстом.
     trigger<T extends object>(eventName: string, context?: Partial<T>) {
         return (event: object = {}) => {
             this.emit(eventName, {

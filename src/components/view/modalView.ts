@@ -1,10 +1,14 @@
 import { EventEmitter } from '../base/events';
 import { IView } from './view';
 
-export class ModalView implements IView {
-	private readonly modalContainer: HTMLElement;
-	private events: EventEmitter;
 
+
+//отображение модалки
+export class ModalView implements IView {
+	private readonly modalContainer: HTMLElement; // модалка
+	private events: EventEmitter; 
+
+	//сохраняем переданный объект событий, находим модальное окно на странице и запускаем настройку его поведения
 	constructor(events: EventEmitter) {
 		this.events = events;
 
@@ -12,6 +16,7 @@ export class ModalView implements IView {
 		this.setup();
 	}
 
+	// находим кнопку "закрыть" (крестик) в модалке
 	private setup() {
 		const closeBtn = this.modalContainer.querySelector(
 			'.modal__close'
@@ -22,6 +27,7 @@ export class ModalView implements IView {
 			this.events.emit('modal:close');
 		});
 
+		// находим внутренний контейнер, в котором находится основное содержимое модалки
 		const modalContent = this.modalContainer.querySelector(
 			'.modal__container'
 		) as HTMLElement;
@@ -33,7 +39,9 @@ export class ModalView implements IView {
 			}
 		});
 	}
-
+	
+	//рендерим модалку
+	//обновляем содержимое модалки и открываем/закрываем её 
 	render({ content, isOpen }: { content?: HTMLElement; isOpen: boolean }) {
 		const contentWrapper = this.modalContainer.querySelector(
 			'.modal__content'
